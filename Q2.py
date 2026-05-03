@@ -18,7 +18,6 @@ merge_call_count = 0
 
 
 def merge_sort(arr, attr="transactionID"):
-    """Enhanced Merge Sort to support dynamic attribute comparison."""
     global merge_call_count
     merge_call_count += 1
 
@@ -68,16 +67,6 @@ def linear_search(arr, target_id):
     return -1
 
 
-def display_complexity_table():
-    """Displays time complexity analysis in a tabular format."""
-    print("\n" + "=" * 65)
-    print(f"{'Algorithm':<20} | {'Best Case':<12} | {'Average':<12} | {'Worst Case':<12}")
-    print("-" * 65)
-    print(f"{'Merge Sort':<20} | {'O(n log n)':<12} | {'O(n log n)':<12} | {'O(n log n)':<12}")
-    print(f"{'Binary Search':<20} | {'O(1)':<12} | {'O(log n)':<12} | {'O(log n)':<12}")
-    print(f"{'Linear Search':<20} | {'O(1)':<12} | {'O(n)':<12} | {'O(n)':<12}")
-    print("=" * 65)
-
 
 def main():
     transactions = [
@@ -97,8 +86,7 @@ def main():
         print("3. Search transaction")
         print("4. Search transaction")
         print("5. Add New Transaction")
-        print("6. Display Complexity Analysis")
-        print("7. Exit")
+        print("6. Exit")
 
         choice = input("Enter choice: ")
 
@@ -151,9 +139,6 @@ def main():
                 print("Invalid input. Please try again.")
 
         elif choice == "6":
-            display_complexity_table()
-
-        elif choice == "7":
             break
 
 
