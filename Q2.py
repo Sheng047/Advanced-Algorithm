@@ -1,7 +1,9 @@
 import time
 from datetime import datetime
+
+
 class Transaction:
-    def __init__(self,transaction_id,customer_name,product_name,amount,transaction_date):
+    def __init__(self, transaction_id, customer_name, product_name, amount, transaction_date):
         self.transactionID = transaction_id
         self.customerName = customer_name
         self.productName = product_name
@@ -9,10 +11,14 @@ class Transaction:
         self.transactionDate = transaction_date
 
     def __str__(self):
-        return f"{self.transactionID} | {self.customerName} | {self.productName} | {self.amount} | {self.transactionDate}"
+        return f"{self.transactionID:<5} | {self.customerName:<10} | {self.productName:<10} | {self.amount:<8.2f} | {self.transactionDate}"
+
 
 merge_call_count = 0
-def merge_sort(arr):
+
+
+def merge_sort(arr, attr="transactionID"):
+    """Enhanced Merge Sort to support dynamic attribute comparison."""
     global merge_call_count
     merge_call_count += 1
 
@@ -20,33 +26,32 @@ def merge_sort(arr):
         return arr
 
     mid = len(arr) // 2
-    left = merge_sort(arr[:mid]) #recursive left
-    right = merge_sort(arr[mid:]) #recursive right
-    return merge(left,right)
+    left = merge_sort(arr[:mid], attr)#recursive left
+    right = merge_sort(arr[mid:], attr)#recursive right
+    return merge(left, right, attr)
 
-def merge(left,right):
+
+def merge(left, right, attr):
     sorted_list = []
-    i = 0
-    j = 0
+    i = j = 0
 
-    #comparing then merge
     while i < len(left) and j < len(right):
-        if left[i].transactionID <= right[j].transactionID:
+        # Use getattr to dynamically access the chosen attribute
+        if getattr(left[i], attr) <= getattr(right[j], attr):
             sorted_list.append(left[i])
-            i+=1
+            i += 1
         else:
             sorted_list.append(right[j])
-            j+=1
-
-    #appending remaining items
+            j += 1
+    # appending remaining items
     sorted_list.extend(left[i:])
-    sorted_list.extend((right[j:]))
+    sorted_list.extend(right[j:])
     return sorted_list
 
-def binary_search(arr,target_id,low,high):
+
+def binary_search(arr, target_id, low, high):
     if low > high:
         return -1
-
     mid = (low + high) // 2
     if arr[mid].transactionID == target_id:
         return mid
@@ -55,163 +60,102 @@ def binary_search(arr,target_id,low,high):
     else:
         return binary_search(arr, target_id, mid + 1, high)
 
-def linear_search(arr,target_id):
+
+def linear_search(arr, target_id):
     for i in range(len(arr)):
         if arr[i].transactionID == target_id:
             return i
     return -1
 
-def display_transaction(arr):
-    for i in arr:
-        print(i)
 
-#test
-transactions = [
-    Transaction(105, "Ali", "Mouse", 45.00, "2026-04-01"),
-    Transaction(101, "Siti", "Keyboard", 120.00, "2026-04-02"),
-    Transaction(110, "John", "Monitor", 800.00, "2026-04-03"),
-    Transaction(103, "Amin", "Laptop", 3500.00, "2026-04-04"),
-    Transaction(108, "Lisa", "USB Cable", 15.00, "2026-04-05"),
-    Transaction(102, "Daniel", "Phone", 2000.00, "2026-04-06"),
-    Transaction(107, "Sarah", "Headset", 150.00, "2026-04-07"),
-    Transaction(104, "Kumar", "Tablet", 900.00, "2026-04-08"),
-    Transaction(109, "Mei", "Charger", 60.00, "2026-04-09"),
-    Transaction(106, "Farah", "SSD", 400.00, "2026-04-10")
-]
+def display_complexity_table():
+    """Displays time complexity analysis in a tabular format."""
+    print("\n" + "=" * 65)
+    print(f"{'Algorithm':<20} | {'Best Case':<12} | {'Average':<12} | {'Worst Case':<12}")
+    print("-" * 65)
+    print(f"{'Merge Sort':<20} | {'O(n log n)':<12} | {'O(n log n)':<12} | {'O(n log n)':<12}")
+    print(f"{'Binary Search':<20} | {'O(1)':<12} | {'O(log n)':<12} | {'O(log n)':<12}")
+    print(f"{'Linear Search':<20} | {'O(1)':<12} | {'O(n)':<12} | {'O(n)':<12}")
+    print("=" * 65)
 
-sorted_transaction = transactions[:] #copy original list
 
 def main():
-    global sorted_transaction
-    # Example test cases
-    print("\nTest Existing ID (101):")
-    print(binary_search(sorted_transaction, 101, 0, len(sorted_transaction) - 1))
+    transactions = [
+        Transaction(105, "Ali", "Mouse", 45.00, "2026-04-01"),
+        Transaction(101, "Siti", "Keyboard", 120.00, "2026-04-02"),
+        Transaction(110, "John", "Monitor", 800.00, "2026-04-03"),
+        Transaction(103, "Amin", "Laptop", 3500.00, "2026-04-04"),
+        Transaction(108, "Lisa", "USB Cable", 15.00, "2026-04-05")
+    ]
 
-    print("\nTest Non-Existing ID (999):")
-    print(binary_search(sorted_transaction, 999, 0, len(sorted_transaction) - 1))
+    sorted_transaction = transactions[:]
+
     while True:
         print("\n===== TRANSACTION SYSTEM MENU =====")
         print("1. Display all transactions")
-        print("2. Sort transactions (Merge Sort)")
-        print("3. Search transaction (Binary Search)")
-        print("4. Search transaction (Linear Search)")
-        print("5. Exit")
+        print("2. Sort transactions")
+        print("3. Search transaction")
+        print("4. Search transaction")
+        print("5. Add New Transaction")
+        print("6. Display Complexity Analysis")
+        print("7. Exit")
 
         choice = input("Enter choice: ")
 
         if choice == "1":
-            print("\n--- TRANSACTIONS ---")
-            display_transaction(sorted_transaction)
+            print(f"\n{'ID':<5} | {'Customer':<10} | {'Product':<10} | {'Amount':<8} | {'Date'}")
+            print("-" * 60)
+            for t in sorted_transaction: print(t)
 
         elif choice == "2":
-            print("\nBefore Sorting:")
-            display_transaction(sorted_transaction)
+            print("\nSort by: (1) Transaction ID (2) Amount")
+            sort_choice = input("Choice: ")
+            attr = "amount" if sort_choice == "2" else "transactionID"
 
-            start = time.time()
             global merge_call_count
             merge_call_count = 0
-            sorted_transaction = merge_sort(sorted_transaction)
+            start = time.time()
+            sorted_transaction = merge_sort(sorted_transaction, attr)
             end = time.time()
 
-            print("\nAfter Sorting (by Transaction ID):")
-            display_transaction(sorted_transaction)
-
-            print(f"\nMerge Sort Time: {end - start:.6f} seconds")
-            print(f"Recursive Calls: {merge_call_count}")
+            print(f"\nSorted successfully by {attr}!")
+            print(f"Time: {end - start:.6f}s | Recursive Calls: {merge_call_count}")
 
         elif choice == "3":
-            if sorted_transaction != sorted(transactions, key=lambda x: x.transactionID):
-                print("\n Please sort data first using Merge Sort.")
-                continue
-
-            target = int(input("Enter Transaction ID to search: "))
-
+            # Binary search requires sorting by ID specifically
+            target = int(input("Enter Transaction ID: "))
             start = time.time()
             result = binary_search(sorted_transaction, target, 0, len(sorted_transaction) - 1)
-            end = time.time()
-
-            if result != -1:
-                print("\n Transaction Found:")
-                print(sorted_transaction[result])
-            else:
-                print("\n Transaction NOT found")
-
-            print(f"Binary Search Time: {end - start:.6f} seconds")
+            print(f"Found: {sorted_transaction[result]}" if result != -1 else "Not Found")
+            print(f"Search Time: {time.time() - start:.6f}s")
 
         elif choice == "4":
-            target = int(input("Enter Transaction ID to search: "))
-
+            target = int(input("Enter Transaction ID: "))
             start = time.time()
             result = linear_search(sorted_transaction, target)
-            end = time.time()
-
-            if result != -1:
-                print("\n Transaction Found:")
-                print(sorted_transaction[result])
-            else:
-                print("\n Transaction NOT found")
-
-            print(f"Linear Search Time: {end - start:.6f} seconds")
+            print(f"Found: {sorted_transaction[result]}" if result != -1 else "Not Found")
+            print(f"Search Time: {time.time() - start:.6f}s")
 
         elif choice == "5":
-            print("Exiting program...")
+            try:
+                tid = int(input("ID: "))
+                name = input("Customer: ")
+                prod = input("Product: ")
+                amt = float(input("Amount: "))
+                date = datetime.now().strftime("%Y-%m-%d")
+                new_t = Transaction(tid, name, prod, amt, date)
+                transactions.append(new_t)
+                sorted_transaction.append(new_t)
+                print("Transaction added successfully.")
+            except ValueError:
+                print("Invalid input. Please try again.")
+
+        elif choice == "6":
+            display_complexity_table()
+
+        elif choice == "7":
             break
-
-        else:
-            print("Invalid choice! Try again.")
-
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
