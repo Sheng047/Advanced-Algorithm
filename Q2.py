@@ -25,24 +25,21 @@ def merge_sort(arr, attr="transactionID"):
         return arr
 
     mid = len(arr) // 2
-    left = merge_sort(arr[:mid], attr)#recursive left
-    right = merge_sort(arr[mid:], attr)#recursive right
+    left = merge_sort(arr[:mid], attr)
+    right = merge_sort(arr[mid:], attr)
     return merge(left, right, attr)
 
 
 def merge(left, right, attr):
     sorted_list = []
     i = j = 0
-
     while i < len(left) and j < len(right):
-        # Use getattr to dynamically access the chosen attribute
         if getattr(left[i], attr) <= getattr(right[j], attr):
             sorted_list.append(left[i])
             i += 1
         else:
             sorted_list.append(right[j])
             j += 1
-    # appending remaining items
     sorted_list.extend(left[i:])
     sorted_list.extend(right[j:])
     return sorted_list
@@ -67,7 +64,6 @@ def linear_search(arr, target_id):
     return -1
 
 
-
 def main():
     transactions = [
         Transaction(105, "Ali", "Mouse", 45.00, "2026-04-01"),
@@ -77,14 +73,16 @@ def main():
         Transaction(108, "Lisa", "USB Cable", 15.00, "2026-04-05")
     ]
 
-    sorted_transaction = transactions[:]
+    # Initial sort so binary search works immediately
+    sorted_transaction = merge_sort(transactions, "transactionID")
+    current_sort_attr = "transactionID"
 
     while True:
         print("\n===== TRANSACTION SYSTEM MENU =====")
         print("1. Display all transactions")
         print("2. Sort transactions")
-        print("3. Search transaction")
-        print("4. Search transaction")
+        print("3. Search by ID (Binary Search - Requires ID Sort)")
+        print("4. Search by ID (Linear Search - Any order)")
         print("5. Add New Transaction")
         print("6. Exit")
 
@@ -93,36 +91,52 @@ def main():
         if choice == "1":
             print(f"\n{'ID':<5} | {'Customer':<10} | {'Product':<10} | {'Amount':<8} | {'Date'}")
             print("-" * 60)
-            for t in sorted_transaction: print(t)
+            for t in sorted_transaction:
+                print(t)
 
         elif choice == "2":
             print("\nSort by: (1) Transaction ID (2) Amount")
             sort_choice = input("Choice: ")
-            attr = "amount" if sort_choice == "2" else "transactionID"
+            current_sort_attr = "amount" if sort_choice == "2" else "transactionID"
 
             global merge_call_count
             merge_call_count = 0
             start = time.time()
-            sorted_transaction = merge_sort(sorted_transaction, attr)
+            sorted_transaction = merge_sort(sorted_transaction, current_sort_attr)
             end = time.time()
 
-            print(f"\nSorted successfully by {attr}!")
+            print(f"\nSorted successfully by {current_sort_attr}!")
             print(f"Time: {end - start:.6f}s | Recursive Calls: {merge_call_count}")
 
         elif choice == "3":
-            # Binary search requires sorting by ID specifically
-            target = int(input("Enter Transaction ID: "))
-            start = time.time()
-            result = binary_search(sorted_transaction, target, 0, len(sorted_transaction) - 1)
-            print(f"Found: {sorted_transaction[result]}" if result != -1 else "Not Found")
-            print(f"Search Time: {time.time() - start:.6f}s")
+            # BUG FIX: Check if we are currently sorted by ID
+            if current_sort_attr != "transactionID":
+                print("! Warning: List was sorted by Amount. Re-sorting by ID for Binary Search...")
+                sorted_transaction = merge_sort(sorted_transaction, "transactionID")
+                current_sort_attr = "transactionID"
+
+            try:
+                target = int(input("Enter Transaction ID to Binary Search: "))
+                start = time.time()
+                result = binary_search(sorted_transaction, target, 0, len(sorted_transaction) - 1)
+
+                if result != -1:
+                    print(f"Found: {sorted_transaction[result]}")
+                else:
+                    print("Transaction ID not found.")
+                print(f"Search Time: {time.time() - start:.6f}s")
+            except ValueError:
+                print("Invalid ID format.")
 
         elif choice == "4":
-            target = int(input("Enter Transaction ID: "))
-            start = time.time()
-            result = linear_search(sorted_transaction, target)
-            print(f"Found: {sorted_transaction[result]}" if result != -1 else "Not Found")
-            print(f"Search Time: {time.time() - start:.6f}s")
+            try:
+                target = int(input("Enter Transaction ID to Linear Search: "))
+                start = time.time()
+                result = linear_search(sorted_transaction, target)
+                print(f"Found: {sorted_transaction[result]}" if result != -1 else "Not Found")
+                print(f"Search Time: {time.time() - start:.6f}s")
+            except ValueError:
+                print("Invalid ID format.")
 
         elif choice == "5":
             try:
@@ -132,13 +146,16 @@ def main():
                 amt = float(input("Amount: "))
                 date = datetime.now().strftime("%Y-%m-%d")
                 new_t = Transaction(tid, name, prod, amt, date)
-                transactions.append(new_t)
+
                 sorted_transaction.append(new_t)
-                print("Transaction added successfully.")
+                # Re-sort to maintain order after adding
+                sorted_transaction = merge_sort(sorted_transaction, current_sort_attr)
+                print("Transaction added and list re-sorted.")
             except ValueError:
                 print("Invalid input. Please try again.")
 
         elif choice == "6":
+            print("Exiting...")
             break
 
 
