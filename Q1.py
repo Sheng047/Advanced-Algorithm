@@ -63,17 +63,26 @@ def array_search(arr, key):
 
 
 def performance_test(ht, arr):
+    # Test for Existing Key (102)
     start = time.time()
     for _ in range(1000):
         ht.search(102)
     end = time.time()
-    print("Hash Table Search Time:", end - start)
+    print("Hash Table Search Time (Existing - 102):", end - start)
 
+    # Test for Non-Existing Key (999)
+    start = time.time()
+    for _ in range(1000):
+        ht.search(999)
+    end = time.time()
+    print("Hash Table Search Time (Non-Existing - 999):", end - start)
+
+    # Comparison Array Search
     start = time.time()
     for _ in range(1000):
         array_search(arr, 102)
     end = time.time()
-    print("Array Search Time:", end - start)
+    print("Array Search Time (Existing - 102):", end - start)
 
 
 def main():
